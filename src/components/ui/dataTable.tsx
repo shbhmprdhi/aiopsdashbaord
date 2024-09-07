@@ -1,20 +1,39 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+
+interface Step {
+  name: string;
+  result: {
+    status: string;
+    duration: number;
+  };
+}
+
+interface Scenario {
+  id: string;
+  name: string;
+  steps: Step[];
+}
+
+interface Feature {
+  id: string;
+  name: string;
+  elements: Scenario[];
+}
 
 const JsonFileTable = () => {
-  const [tableData, setTableData] = useState([]);
+  const [tableData, setTableData] = useState<Feature[]>([]);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = (e: ProgressEvent<FileReader>) => {
         try {
-          const json = JSON.parse(e.target.result);
+          const json = JSON.parse(e.target?.result as string);
           setTableData(json);
         } catch (error) {
           alert('Error parsing JSON file. Please make sure it\'s a valid JSON.');
@@ -24,7 +43,7 @@ const JsonFileTable = () => {
     }
   };
 
-  const renderTable = (data) => {
+  const renderTable = (data: Feature[]) => {
     if (!data || data.length === 0) return null;
 
     const headers = ['Feature', 'Scenario', 'Step', 'Status', 'Duration'];
